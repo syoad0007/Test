@@ -223,6 +223,7 @@
     <Content Include="Account\ResetPasswordConfirmation.aspx" />
     <Content Include="Account\TwoFactorAuthenticationSignIn.aspx" />
     <Content Include="Account\VerifyPhoneNumber.aspx" />
+    <Content Include="App_Themes\Theme1\JSFile.js" />
     <Content Include="App_Themes\Theme1\StyleSheet1.css" />
     <Content Include="Contact.aspx" />
     <Content Include="Content\bootstrap.css" />

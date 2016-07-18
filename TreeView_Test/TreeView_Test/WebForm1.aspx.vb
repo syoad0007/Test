@@ -9,9 +9,9 @@
         Public Property Name() As String
         Public Property Data() As String
         Public Property リンク() As String
-        Public Property テキスト() As String
+        Public Property NodeText() As String
         Public Property データ() As String
-        Public Property 親ノード() As String
+        Public Property ParentNode() As String
 
     End Class
 
@@ -20,6 +20,15 @@
 
         Public Property Name() As String
         Public Property Data() As String
+
+        Public Sub New()
+        End Sub
+
+        Public Sub New(a_Namne As String, a_Data As String)
+            Name = a_Namne
+            Data = a_Data
+        End Sub
+
 
     End Class
 
@@ -33,6 +42,22 @@
         Dim sampleData = CreateData()
 
         Me.CreateNode_Top("Top", TreeView1.Nodes, sampleData)
+
+
+
+        GridView1.DataSource = Nothing
+        GridView1.DataBind()
+
+        Dim noList As New List(Of GVData)
+        'noList.Add(New GVData("OK", "NG"))
+        'noList.Add(New GVData())
+        GridView2.DataSource = noList
+        GridView2.DataBind()
+        If GridView2.Rows.Count = 0 Then
+            GridView2.GridLines = GridLines.None
+        Else
+            GridView2.GridLines = GridLines.Both
+        End If
 
         Return
 
@@ -49,22 +74,14 @@
             " \nバリュー：" + myValue +
             " \URL：" + myURL + "');"
 
-        ClientScript.RegisterClientScriptBlock(Me.GetType(), "key", cScript, True)
+        'ClientScript.RegisterClientScriptBlock(Me.GetType(), "key", cScript, True)
 
-        Dim gvList As New List(Of GVData)
+        'GridViewにデータを設定
+        SetGridView()
 
-        For icounter As Integer = 0 To 5
-            Dim dv As New GVData
-            dv.Name = "表示データ" + icounter.ToString
-            dv.Data = "非表示データ" + icounter.ToString
-            gvList.Add(dv)
-        Next
-        GridView1.DataSource = gvList
-
-        GridView1.Columns(1).Visible = True
-        GridView1.DataBind()
-        GridView1.Columns(1).Visible = False
-
+        '選択個所の色を変更
+        Dim ss = TreeView1.SelectedNodeStyle
+        ss.CssClass = "ChangeRow"
 
     End Sub
 
@@ -73,14 +90,14 @@
     Private Sub CreateNode_Top(parent As String, nodes As TreeNodeCollection, sampleData As List(Of TVData))
 
         '取得したコンテンツを新規ノードとして現在ノードの配下に追加
-        For Each row As TVData In sampleData.Where(Function(x) x.親ノード = parent)
+        For Each row As TVData In sampleData.Where(Function(x) x.ParentNode = parent)
             Dim node As New TreeNode()
 
             'リンク先を指定すると、Select_Changeイベントが発生しないため使用不可
             'node.NavigateUrl = row.リンク   'リンク先
 
-            node.Text = row.テキスト        'ノード・テキスト
-            node.Value = row.親ノード       'ノード値
+            node.Text = row.NodeText        'ノード・テキスト
+            node.Value = row.ParentNode       'ノード値
             'node.PopulateOnDemand = True ' オンデマンドで子ノードを取得するか
             Me.CreateNode(row.データ, node.ChildNodes, sampleData)
             nodes.Add(node)
@@ -94,15 +111,15 @@
     Private Sub CreateNode(parent As String, nodes As TreeNodeCollection, sampleData As List(Of TVData))
 
         '取得したコンテンツを新規ノードとして現在ノードの配下に追加
-        For Each row As TVData In sampleData.Where(Function(x) x.親ノード = parent)
+        For Each row As TVData In sampleData.Where(Function(x) x.ParentNode = parent)
             Dim node As New TreeNode()
             'node.NavigateUrl = row.リンク  'リンク先
-            node.Text = row.テキスト        'ノード・テキスト
-            node.Value = row.親ノード       'ノード値
+            node.Text = row.NodeText        'ノード・テキスト
+            node.Value = row.ParentNode       'ノード値
 
             node.SelectAction = TreeNodeSelectAction.Select
 
-            Me.CreateNode(row.親ノード + "\" + row.データ, node.ChildNodes, sampleData)
+            Me.CreateNode(row.ParentNode + "\" + row.データ, node.ChildNodes, sampleData)
             nodes.Add(node)
         Next
 
@@ -120,9 +137,9 @@
             data.Name = "Name" + icounter.ToString
             data.Data = "Data" + icounter.ToString
             data.リンク = "リンク" + icounter.ToString
-            data.テキスト = "テキスト" + icounter.ToString
+            data.NodeText = "テキスト" + icounter.ToString
             data.データ = "データ" + icounter.ToString
-            data.親ノード = "Top"
+            data.ParentNode = "Top"
 
             retval.Add(data)
         Next
@@ -134,9 +151,9 @@
             data.Name = "Name2_" + icounter.ToString
             data.Data = "Data2_" + icounter.ToString
             data.リンク = "リンク2_" + icounter.ToString
-            data.テキスト = "テキスト2_" + icounter.ToString
+            data.NodeText = "テキスト2_" + icounter.ToString
             data.データ = "データ2_" + icounter.ToString
-            data.親ノード = "データ1"
+            data.ParentNode = "データ1"
             retval.Add(data)
         Next
 
@@ -147,9 +164,9 @@
             data.Name = "Name3_" + icounter.ToString
             data.Data = "Data3_" + icounter.ToString
             data.リンク = "リンク3_" + icounter.ToString
-            data.テキスト = "テキスト3_" + icounter.ToString
+            data.NodeText = "テキスト3_" + icounter.ToString
             data.データ = "データ3_" + icounter.ToString
-            data.親ノード = "データ1\データ2_1"
+            data.ParentNode = "データ1\データ2_1"
             retval.Add(data)
         Next
 
@@ -157,5 +174,27 @@
         Return retval
 
     End Function
+
+
+
+    Private Sub SetGridView()
+
+        Dim gvList As New List(Of GVData)
+
+        For icounter As Integer = 0 To 5
+            Dim dv As New GVData
+            dv.Name = "表示データ" + icounter.ToString
+            dv.Data = "非表示データ" + icounter.ToString
+            gvList.Add(dv)
+        Next
+        GridView1.DataSource = gvList
+
+        'GridView1.Columns(1).Visible = True
+        GridView1.DataBind()
+        'GridView1.Columns(1).Visible = False
+
+        Return
+
+    End Sub
 
 End Class
